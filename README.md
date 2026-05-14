@@ -1,51 +1,51 @@
 # Quaero Beautiful HTML Templates
 
-Beautiful HTML presentation templates designed for AI-powered deck generation.
+为 AI 驱动的演示文稿生成而设计的精美 HTML 模板库。
 
-30+ production-grade HTML slide templates with Quaero institutional chrome — designed so that any coding agent can pick the right one and produce a beautiful deck on the user's behalf, automatically.
+30+ 生产级 HTML 幻灯片模板，内置 Quaero institutional chrome — 让任何 AI agent 都能自动选择合适的模板，生成漂亮的演示文稿。
 
-## Get started
+## 快速开始
 
-Copy this to your coding agent:
+告诉你的 AI agent：
 
 ```
 Clone https://github.com/GeziP/quaero-beautiful-html-templates and follow the instructions in AGENTS.md to build me a beautiful HTML slide deck.
 ```
 
-Agents using the library should read [`AGENTS.md`](./AGENTS.md). It's the operating manual: how to read `index.json`, match the user's brief to a template, clone it, and adapt the content.
+使用本库的 Agent 应先阅读 [`AGENTS.md`](./AGENTS.md)。这是操作手册：如何读取 `index.json`、匹配用户需求与模板、克隆并替换内容。
 
 ## Quaero Chrome
 
-Every template includes Quaero institutional chrome — a consistent header and footer bar that adapts to each slide's background luminance. The chrome provides:
+每个模板都包含 Quaero institutional chrome — 一套统一的顶栏和底栏，会根据幻灯片背景自动调整明暗：
 
-- Fixed header showing current slide title and page counter
-- Footer with Quaero logo and confidentiality notice
-- Automatic light/dark text switching based on slide background
+- 顶栏显示当前幻灯片标题和页码
+- 底栏显示 Quaero logo 和保密声明
+- 根据背景亮度自动切换明/暗文字
 
-## Template Gallery
+## 模板结构
 
-All templates are organized under `templates/` with this structure:
+所有模板位于 `templates/` 目录：
 
 ```
 templates/<template-slug>/
-  template.html      # Self-contained HTML slide deck
-  template.json      # Metadata: mood, tone, palette, best_for
-  styles.css         # (optional) External styles
-  deck-stage.js      # (optional) Custom slide engine
+  template.html      # 独立的 HTML 幻灯片
+  template.json      # 元数据：风格、配色、适用场景
+  styles.css         # （可选）外部样式
+  deck-stage.js      # （可选）自定义幻灯片引擎
 ```
 
-Browse all templates in the [`templates/`](./templates/) folder. Each `template.json` describes the template's visual system, mood, and ideal use case — agents use this metadata to match user briefs to the right template.
+浏览 [`templates/`](./templates/) 文件夹查看所有模板。每个 `template.json` 描述了模板的视觉系统、风格和适用场景 — Agent 用这些元数据来匹配用户需求。
 
-## How it works
+## 工作流程
 
-1. Agent asks user about occasion and mood
-2. Agent reads `index.json` and picks 3 matching templates
-3. Agent builds title-slide previews for user to compare
-4. Agent clones the chosen template and replaces content
-5. Agent writes the finished deck to the user's specified location
+1. Agent 询问用户演示场景和期望风格
+2. Agent 读取 `index.json`，匹配 3 个候选模板
+3. Agent 为每个候选模板生成封面预览
+4. Agent 克隆用户选择的模板并替换内容
+5. Agent 将完成的演示文稿写入指定位置
 
-See [`AGENTS.md`](./AGENTS.md) for the full workflow.
+详见 [`AGENTS.md`](./AGENTS.md)。
 
-## License
+## 许可证
 
-[MIT](./LICENSE) — free to use, modify, and distribute.
+[MIT](./LICENSE) — 自由使用、修改和分发。
