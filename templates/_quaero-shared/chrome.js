@@ -10,6 +10,8 @@
 
   const headerTitle = document.getElementById("qhi-header-title");
   const headerPage = document.getElementById("qhi-header-page");
+  const headerEl = document.querySelector(".qhi-header");
+  const footerEl = document.querySelector(".quaero-footer");
 
   if (cfg.frameX) root.style.setProperty("--frame-x", cfg.frameX);
   if (cfg.frameInnerX) root.style.setProperty("--frame-inner-x", cfg.frameInnerX);
@@ -30,6 +32,43 @@
       if (!sr) return;
       const over = sr.querySelector(".overlay");
       if (over) over.style.setProperty("display", "none", "important");
+    });
+  }
+
+  function computeSafeInsets() {
+    const extraTop = typeof cfg.safeTopExtraPx === "number" ? cfg.safeTopExtraPx : 8;
+    const extraBottom =
+      typeof cfg.safeBottomExtraPx === "number" ? cfg.safeBottomExtraPx : 8;
+    const headerRect = headerEl
+      ? headerEl.getBoundingClientRect()
+      : { bottom: 0 };
+    const footerRect = footerEl
+      ? footerEl.getBoundingClientRect()
+      : { top: window.innerHeight };
+    return {
+      topInset: Math.max(0, Math.ceil(headerRect.bottom + extraTop)),
+      bottomInset: Math.max(
+        0,
+        Math.ceil(window.innerHeight - footerRect.top + extraBottom),
+      ),
+    };
+  }
+
+  function applySafeAreaToSlides(slides) {
+    const insets = computeSafeInsets();
+    slides.forEach(function (slide) {
+      if (!(slide instanceof HTMLElement)) return;
+      if (slide.dataset.quaeroSafeApplied !== "1") {
+        const cs = getComputedStyle(slide);
+        slide.dataset.quaeroBasePt = String(Number.parseFloat(cs.paddingTop) || 0);
+        slide.dataset.quaeroBasePb = String(Number.parseFloat(cs.paddingBottom) || 0);
+        slide.dataset.quaeroSafeApplied = "1";
+      }
+      const basePt = Number(slide.dataset.quaeroBasePt || 0);
+      const basePb = Number(slide.dataset.quaeroBasePb || 0);
+      slide.style.boxSizing = "border-box";
+      slide.style.paddingTop = `${basePt + insets.topInset}px`;
+      slide.style.paddingBottom = `${basePb + insets.bottomInset}px`;
     });
   }
 
@@ -168,6 +207,7 @@
 
   function syncFromCurrentSlide() {
     const slides = collectSlides();
+    applySafeAreaToSlides(slides);
     const total = slides.length || 1;
     const active = findActiveSlide(slides);
     const index = resolveIndex(active, slides);
@@ -178,16 +218,18 @@
   if (stage) {
     stage.addEventListener("slidechange", function (event) {
       const detail = event.detail || {};
+      const slides = collectSlides();
+      applySafeAreaToSlides(slides);
       const slide =
         detail.slide ||
         stage.querySelector("[data-deck-active]") ||
-        findActiveSlide(collectSlides());
+        findActiveSlide(slides);
       const index = Number(detail.index);
       const total = Number(detail.total);
       applyChrome(
         slide,
-        Number.isFinite(index) ? index : resolveIndex(slide, collectSlides()),
-        Number.isFinite(total) && total > 0 ? total : collectSlides().length || 1,
+        Number.isFinite(index) ? index : resolveIndex(slide, slides),
+        Number.isFinite(total) && total > 0 ? total : slides.length || 1,
       );
     });
   }
@@ -219,7 +261,10 @@
   });
 
   document.addEventListener("click", scheduleSync);
-  window.addEventListener("resize", scheduleSync);
+  window.addEventListener("resize", function () {
+    hideDeckStageOverlays();
+    scheduleSync();
+  });
 
   hideDeckStageOverlays();
   requestAnimationFrame(function () {

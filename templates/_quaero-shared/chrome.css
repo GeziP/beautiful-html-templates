@@ -69,6 +69,8 @@
 .quaero-footer .logo-img {
   height: 5vh;
   min-height: 32px;
+  width: auto;
+  object-fit: contain;
   margin-right: 1.5vw;
   flex-shrink: 0;
 }

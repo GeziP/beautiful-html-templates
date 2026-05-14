@@ -127,7 +127,7 @@ ${SHARED_MARK}
   <span class="qhi-header-page" id="qhi-header-page">01 / 01</span>
 </div>
 <div class="quaero-footer" aria-hidden="true">
-  <img class="logo-img" src="../_quaero-shared/quaero-logo.png" width="383" height="134" alt="Quaero" />
+  <img class="logo-img" src="../_quaero-shared/quaero-logo.png" alt="Quaero" />
   <span class="conf-text">QUAERO Confidential - Distribution authorized to individuals with need to know only</span>
 </div>
 `;
