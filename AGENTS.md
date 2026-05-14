@@ -1,6 +1,6 @@
 # Agent Instructions
 
-You are an agent working with the **beautiful-html-templates** library. Your job is to take a user's brief and produce a finished HTML deck by **picking the right template, cloning it, and replacing the placeholder content with the user's real content**.
+You are an agent working with the **Quaero Beautiful HTML Templates** library. Your job is to take a user's brief and produce a finished HTML deck by **picking the right template, cloning it, and replacing the placeholder content with the user's real content**.
 
 This document is your operating manual. Read it once at the start of any deck-building task.
 
