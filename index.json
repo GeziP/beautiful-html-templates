@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "generated_at": "2026-05-06T01:44:47.414Z",
-  "template_count": 32,
+  "template_count": 33,
   "templates": [
     {
       "slug": "8-bit-orbit",
@@ -1006,6 +1006,40 @@
       "best_for": "Anything that should feel scholarly, literary, and quietly intelligent: research synthesis, white papers, academic and policy briefs, advisory deliverables, longform editorial pieces, founder reflections. Equally strong for any deck — including tech, business, or creator work — that wants a calm, considered atmosphere instead of energetic visuals.",
       "avoid_for": "Contexts that need visual heat or pop — the navy + warm-yellow italic-Cormorant aesthetic is intentionally low-tempo.",
       "slide_count": 9
+    },
+    {
+      "slug": "quaero-institutional",
+      "name": "Quaero Institutional",
+      "tagline": "Teal-and-navy corporate deck with Quaero brand identity; clean, technical, and trustworthy.",
+      "mood": [
+        "professional",
+        "technical",
+        "institutional",
+        "trustworthy",
+        "clean"
+      ],
+      "occasion": [
+        "技术评审",
+        "仪器后端讲解",
+        "内部汇报",
+        "项目演示",
+        "technical review",
+        "internal report",
+        "engineering presentation",
+        "product walkthrough"
+      ],
+      "tone": [
+        "polished",
+        "technical",
+        "considered",
+        "corporate"
+      ],
+      "formality": "medium-high",
+      "density": "medium",
+      "scheme": "light",
+      "best_for": "Anything that should feel corporate-technical and trustworthy: instrument and device reviews, engineering presentations, internal technical reports, project demos, bilingual EN/CN technical decks. Also a solid choice for any B2B, medical-device, or lab-equipment context where the deck should read as institutional and precise.",
+      "avoid_for": "Contexts that need warmth, playfulness, or editorial flair — the teal-navy palette and institutional footer commit to a corporate-technical voice.",
+      "slide_count": 10
     }
   ]
 }
