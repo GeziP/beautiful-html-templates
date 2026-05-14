@@ -1,0 +1,83 @@
+@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Noto+Sans+SC:wght@400;500;700&display=swap");
+
+/* Quaero corporate chrome — shared across quaero-* template variants */
+:root {
+  --frame-x: 80px;
+  --frame-inner-x: 12px;
+  --chrome-top: 1.6vh;
+  --chrome-bottom: 0px;
+  --chrome-header-height: 5.4vh;
+  --chrome-footer-height: 8vh;
+  --qhi-chrome-bg: #f2eedf;
+  --qhi-chrome-border: rgba(42, 36, 27, 0.24);
+  --qhi-chrome-text: #2a241b;
+  --qhi-chrome-subtext: #5c5345;
+}
+
+.qhi-header {
+  position: fixed;
+  top: var(--chrome-top);
+  left: var(--frame-x);
+  right: var(--frame-x);
+  height: var(--chrome-header-height);
+  min-height: 34px;
+  border-radius: 3px;
+  padding: 0 var(--frame-inner-x);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--qhi-chrome-bg);
+  border: 1px solid var(--qhi-chrome-border);
+  z-index: 320;
+  pointer-events: none;
+  transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease;
+}
+
+.qhi-header-title {
+  font-family: "Work Sans", "Noto Sans SC", sans-serif;
+  font-size: clamp(0.85rem, 1.15vw, 1.1rem);
+  font-weight: 700;
+  color: var(--qhi-chrome-text);
+  text-transform: uppercase;
+}
+
+.qhi-header-page {
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--qhi-chrome-subtext);
+  letter-spacing: 0.05em;
+}
+
+.quaero-footer {
+  position: fixed;
+  left: var(--frame-x);
+  right: var(--frame-x);
+  bottom: var(--chrome-bottom);
+  height: var(--chrome-footer-height);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--frame-inner-x);
+  background: var(--qhi-chrome-bg);
+  border-top: 1px solid var(--qhi-chrome-border);
+  z-index: 320;
+  pointer-events: none;
+  transition: background-color 240ms ease, border-color 240ms ease, color 240ms ease;
+}
+
+.quaero-footer .logo-img {
+  height: 5vh;
+  min-height: 32px;
+  margin-right: 1.5vw;
+  flex-shrink: 0;
+}
+
+.quaero-footer .conf-text {
+  font-family: "Work Sans", "Noto Sans SC", sans-serif;
+  font-size: clamp(0.72rem, 0.92vw, 1.02rem);
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--qhi-chrome-text);
+  letter-spacing: 0.02em;
+}

@@ -1,0 +1,229 @@
+/**
+ * Quaero corporate header/footer: sync title + page counter, tint chrome from active slide background.
+ * Works with deck-stage (slidechange), .slide.is-active (Studio/Signal), and .slide.active (most vanilla decks).
+ */
+(function () {
+  "use strict";
+
+  const cfg = window.__QUAERO_CHROME__ || {};
+  const root = document.documentElement;
+
+  const headerTitle = document.getElementById("qhi-header-title");
+  const headerPage = document.getElementById("qhi-header-page");
+
+  if (cfg.frameX) root.style.setProperty("--frame-x", cfg.frameX);
+  if (cfg.frameInnerX) root.style.setProperty("--frame-inner-x", cfg.frameInnerX);
+  if (cfg.chromeTop) root.style.setProperty("--chrome-top", cfg.chromeTop);
+  if (cfg.chromeBottom) root.style.setProperty("--chrome-bottom", cfg.chromeBottom);
+  if (cfg.chromeHeaderHeight) {
+    root.style.setProperty("--chrome-header-height", cfg.chromeHeaderHeight);
+  }
+  if (cfg.chromeFooterHeight) {
+    root.style.setProperty("--chrome-footer-height", cfg.chromeFooterHeight);
+  }
+
+  /** Hide deck-stage's built-in bottom overlay (duplicate slide counter) — shadow DOM is open. */
+  function hideDeckStageOverlays() {
+    if (cfg.hideDeckOverlay === false) return;
+    document.querySelectorAll("deck-stage").forEach(function (el) {
+      const sr = el.shadowRoot;
+      if (!sr) return;
+      const over = sr.querySelector(".overlay");
+      if (over) over.style.setProperty("display", "none", "important");
+    });
+  }
+
+  function normalizeTitle(text) {
+    return String(text || "")
+      .replace(/\s+/g, " ")
+      .replace(/^\d+\s*/, "")
+      .trim();
+  }
+
+  function extractSlideTitle(slide) {
+    if (!slide) return "PRESENTATION";
+    const fromDataLabel = normalizeTitle(slide.getAttribute("data-label"));
+    if (fromDataLabel) return fromDataLabel;
+    const fromScreen = normalizeTitle(slide.getAttribute("data-screen-label"));
+    if (fromScreen) return fromScreen;
+    const heading = slide.querySelector("h1, h2, h3");
+    const fromHeading = normalizeTitle(heading ? heading.textContent : "");
+    if (fromHeading) return fromHeading;
+    return "PRESENTATION";
+  }
+
+  function parseRgb(color) {
+    const parts = color && color.match(/\d+(\.\d+)?/g);
+    if (!parts || parts.length < 3) return null;
+    return {
+      r: Number(parts[0]),
+      g: Number(parts[1]),
+      b: Number(parts[2]),
+    };
+  }
+
+  function relativeLuminance(r, g, b) {
+    function channel(v) {
+      const c = v / 255;
+      return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+    }
+    return 0.2126 * channel(r) + 0.7152 * channel(g) + 0.0722 * channel(b);
+  }
+
+  function getComputedSlideBackground(slide) {
+    const fallback = cfg.fallbackBg || "rgb(242, 238, 223)";
+    if (!slide) return fallback;
+    let node = slide;
+    while (node && node !== document.body) {
+      const bg = getComputedStyle(node).backgroundColor;
+      if (bg && bg !== "rgba(0, 0, 0, 0)" && bg !== "transparent") return bg;
+      node = node.parentElement;
+    }
+    return fallback;
+  }
+
+  function applyChrome(slide, index, total) {
+    if (!slide) return;
+    const bg = getComputedSlideBackground(slide);
+    const rgb = parseRgb(bg);
+    const threshold =
+      typeof cfg.luminanceThreshold === "number" ? cfg.luminanceThreshold : 0.45;
+    const dark = rgb ? relativeLuminance(rgb.r, rgb.g, rgb.b) < threshold : false;
+
+    root.style.setProperty("--qhi-chrome-bg", bg);
+    root.style.setProperty(
+      "--qhi-chrome-border",
+      dark ? "rgba(242, 238, 223, 0.26)" : "rgba(42, 36, 27, 0.24)",
+    );
+    root.style.setProperty("--qhi-chrome-text", dark ? "#F2EEDF" : "#2A241B");
+    root.style.setProperty(
+      "--qhi-chrome-subtext",
+      dark ? "rgba(242, 238, 223, 0.72)" : "#5C5345",
+    );
+
+    if (headerTitle) headerTitle.textContent = extractSlideTitle(slide).toUpperCase();
+    if (headerPage) {
+      headerPage.textContent =
+        String(index + 1).padStart(2, "0") +
+        " / " +
+        String(Math.max(1, total)).padStart(2, "0");
+    }
+  }
+
+  function collectSlides() {
+    const stage = document.querySelector("deck-stage");
+    if (stage) {
+      const directSections = Array.from(stage.querySelectorAll(":scope > section"));
+      if (directSections.length) return directSections;
+      const kids = Array.from(stage.children).filter(function (el) {
+        return el.matches && el.matches("section.slide, .slide");
+      });
+      if (kids.length) return kids;
+    }
+    return Array.from(document.querySelectorAll(".slide"));
+  }
+
+  function findActiveSlide(slides) {
+    const stage = document.querySelector("deck-stage");
+    if (stage) {
+      const marked = stage.querySelector("[data-deck-active]");
+      if (marked) return marked;
+    }
+    const byIs = slides.find(function (s) {
+      return s.classList && s.classList.contains("is-active");
+    });
+    if (byIs) return byIs;
+    const byActive = slides.find(function (s) {
+      return s.classList && s.classList.contains("active");
+    });
+    if (byActive) return byActive;
+    return slides[0] || null;
+  }
+
+  function resolveIndex(active, slides) {
+    if (!active) return 0;
+    const fromAttr = active.getAttribute("data-deck-slide");
+    if (fromAttr != null && fromAttr !== "") {
+      const n = Number(fromAttr);
+      if (!Number.isNaN(n)) return n;
+    }
+    const fromDataIndex = active.getAttribute("data-index");
+    if (fromDataIndex != null && fromDataIndex !== "") {
+      const n = Number(fromDataIndex);
+      if (!Number.isNaN(n)) return n;
+    }
+    const i = slides.indexOf(active);
+    return i >= 0 ? i : 0;
+  }
+
+  let rafScheduled = false;
+  function scheduleSync() {
+    if (rafScheduled) return;
+    rafScheduled = true;
+    requestAnimationFrame(function () {
+      rafScheduled = false;
+      syncFromCurrentSlide();
+    });
+  }
+
+  function syncFromCurrentSlide() {
+    const slides = collectSlides();
+    const total = slides.length || 1;
+    const active = findActiveSlide(slides);
+    const index = resolveIndex(active, slides);
+    applyChrome(active, index, total);
+  }
+
+  const stage = document.querySelector("deck-stage");
+  if (stage) {
+    stage.addEventListener("slidechange", function (event) {
+      const detail = event.detail || {};
+      const slide =
+        detail.slide ||
+        stage.querySelector("[data-deck-active]") ||
+        findActiveSlide(collectSlides());
+      const index = Number(detail.index);
+      const total = Number(detail.total);
+      applyChrome(
+        slide,
+        Number.isFinite(index) ? index : resolveIndex(slide, collectSlides()),
+        Number.isFinite(total) && total > 0 ? total : collectSlides().length || 1,
+      );
+    });
+  }
+
+  const slidesForObserver = collectSlides();
+  slidesForObserver.forEach(function (el) {
+    try {
+      const mo = new MutationObserver(function () {
+        scheduleSync();
+      });
+      mo.observe(el, { attributes: true, attributeFilter: ["class"] });
+    } catch (_) {}
+  });
+
+  document.addEventListener("keyup", function (e) {
+    if (
+      e.key === "ArrowRight" ||
+      e.key === "ArrowLeft" ||
+      e.key === "ArrowUp" ||
+      e.key === "ArrowDown" ||
+      e.key === "PageDown" ||
+      e.key === "PageUp" ||
+      e.key === " " ||
+      e.key === "Home" ||
+      e.key === "End"
+    ) {
+      scheduleSync();
+    }
+  });
+
+  document.addEventListener("click", scheduleSync);
+  window.addEventListener("resize", scheduleSync);
+
+  hideDeckStageOverlays();
+  requestAnimationFrame(function () {
+    hideDeckStageOverlays();
+    syncFromCurrentSlide();
+  });
+})();

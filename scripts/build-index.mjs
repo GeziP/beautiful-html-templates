@@ -45,7 +45,10 @@ function isDir(p) {
   try { return statSync(p).isDirectory(); } catch { return false; }
 }
 
-const slugs = readdirSync(TEMPLATES_DIR).filter(name => isDir(join(TEMPLATES_DIR, name)));
+const slugs = readdirSync(TEMPLATES_DIR).filter(name => {
+  if (name === '_quaero-shared') return false;
+  return isDir(join(TEMPLATES_DIR, name));
+});
 
 const entries = [];
 const errors = [];
