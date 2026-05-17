@@ -360,6 +360,72 @@ templates/<template-slug>/
 
 > Warm cream and rust-red supper-club aesthetic with bold uppercase grotesk headlines, italic Fraunces, and pill-shaped outlined buttons.
 
+## Export Toolbar
+
+每个模板内置了一键导出工具栏（右下角悬浮按钮），支持：
+
+| 按钮 | 功能 | 适用平台 |
+|---|---|---|
+| **WeChat** | CSS 内联后复制 HTML，粘贴到公众号编辑器零格式丢失 | 微信公众号 |
+| **Copy IMG** | 当前幻灯片截图为 2x PNG 并复制到剪贴板 | X / 小红书 / 微博 |
+| **PNG** | 下载当前幻灯片为高清 PNG 文件 | 任何平台 |
+| **HTML** | 下载完整 deck 为独立 .html 文件 | 离线分享 |
+
+工具栏默认透明度 35%，鼠标悬停时显示，打印时自动隐藏。
+
+管理命令：
+
+```bash
+node scripts/inject-export-toolbar.mjs           # 注入到所有模板
+node scripts/inject-export-toolbar.mjs --remove   # 从所有模板移除
+```
+
+## html-anything 集成
+
+本库的 65 套模板可以导出为 [html-anything](https://github.com/nexu-io/html-anything) 兼容的 SKILL.md 格式，让 Claude Code、Cursor、Codex 等 8 种 AI 编码 CLI 直接使用我们的设计系统。
+
+```bash
+node scripts/export-skills.mjs
+# → dist/skills/ 目录下生成 65 个 skill 文件夹
+```
+
+每个 skill 文件夹包含：
+
+```
+dist/skills/deck-<slug>/
+  SKILL.md        # 提示词 + 前置元数据
+  example.html    # 我们的 template.html
+  assets/         # deck-stage.js, styles.css, chrome 资源
+```
+
+将 `dist/skills/` 下的文件夹复制到 html-anything 的 `src/lib/templates/skills/` 即可在其 picker 中显示。
+
+## Agent Memory
+
+本项目集成了 [agentmemory](https://github.com/rohitg00/agentmemory)，让 Claude Code、Cursor、Codex CLI 等 AI 编码 agent 共享持久化记忆。
+
+```bash
+# 启动 memory server（单独终端）
+npx @agentmemory/agentmemory
+```
+
+各 agent 的配置已预置：
+
+| Agent | 配置文件 | 状态 |
+|---|---|---|
+| **Claude Code** | `.mcp.json`（项目级） | 已配置 |
+| **Cursor** | `~/.cursor/mcp.json` | 已配置 |
+| **Codex CLI** | `~/.codex/config.toml` | 已配置 |
+
+Claude Code 用户还可以通过 plugin 系统获得完整集成（12 hooks + 4 skills + 51 MCP tools）：
+
+```
+/plugin marketplace add rohitg00/agentmemory
+/plugin install agentmemory
+```
+
+实时查看器：`http://localhost:3113`
+
 ## 工作流程
 
 1. Agent 询问用户演示场景和期望风格
